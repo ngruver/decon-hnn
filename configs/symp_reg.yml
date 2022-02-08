@@ -1,0 +1,21 @@
+project: physics-uncertainty-exps
+method: grid
+parameters:
+  data_seed:
+    values: [0, 1, 2, 3]
+  num_epochs:
+    value: 1000
+  model_type:
+    values: ["SpNN"]
+  system_type:
+    values: ["ChainPendulum", "SpringPendulum"]
+  num_bodies:
+    values: [1, 2, 3]
+  alpha:
+    values: [1e-2, 1e-1, 1e0, 1e1, 1e2, 1e3]
+program: flex-hnn.py
+command:
+  - ${env}
+  - python3
+  - ${program}
+  - ${args}
