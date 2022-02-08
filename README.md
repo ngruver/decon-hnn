@@ -1,6 +1,6 @@
 # Deconstructing The Inductive Biases of Hamiltonian Neural Networks
 <p align="center">
-  <img src="/assets/figure1.pdf" width=900>
+  <img src="/assets/figure1.png" width=900>
 </p>
 This repo contains the implementation and the experiments for the paper 
 
