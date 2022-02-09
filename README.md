@@ -14,13 +14,13 @@ https://github.com/mfinzi/constrained-hamiltonian-neural-networks.git
 
 # Installation instructions
 
-## Pip
+### Pip
 ```bash
 git clone https://github.com/ngruver/decon-hnn.git
 cd decon-hnn
 pip install -r requirements.txt
 ```
-## Conda
+### Conda
 ```bash
 git clone https://github.com/ngruver/decon-hnn.git
 cd decon-hnn
@@ -45,9 +45,9 @@ https://wandb.ai/samuelstanton/physics-uncertainty-exps/sweeps
 
 All experimental data, and the associated configurations, are contained in these sweeps.
 
-# Train Models
+# Train pendulum models
 
-You can train models on pendulum systems for the ``NN`` (NODE), ``MechanicsNN`` (NODE + SO), and ``HNN`` using the ``model_type`` option as shown below.
+You can train the models ``NN`` (NODE), ``MechanicsNN`` (NODE + SO), and ``HNN`` using the ``model_type`` option as shown below.
 
 ```
 python toy_systems.py --system_type "ChainPendulum" --model_type "NN"
@@ -55,7 +55,7 @@ python toy_systems.py --system_type "ChainPendulum" --model_type "MechanicsNN"
 python toy_systems.py --system_type "ChainPendulum" --model_type "HNN"
 ```
 
-Different systems, with and without friction, can be specified using the  ``system_type`` option as shown below.
+Different systems, with and without friction, can be specified using the ``system_type`` option as shown below.
 
 ```
 python toy_systems.py --system_type "SpringPendulum" --model_type "NN"
@@ -63,9 +63,11 @@ python toy_systems.py --system_type "FrictionChainPendulum" --model_type "NN"
 python toy_systems.py --system_type "FrictionSpringPendulum" --model_type "NN"
 ```
 
+# Train Mujoco models
+
 To train models on mujoco, you must first download our saved mujoco trajectories with full state and velocity.
 
-## Mac
+### Mac
 
 ```
 brew install gdrive
@@ -73,7 +75,7 @@ gdrive download 1Vdf8rjPXabfMaCouNfqUYf0ifDW3qAU2 --recursive
 mv full_state_mujoco_trajs data
 ```
 
-## Linux
+### Linux
 
 ```
 pip install gshell
@@ -82,11 +84,17 @@ gshell download --with-id '1Vdf8rjPXabfMaCouNfqUYf0ifDW3qAU2' --recursive
 mv full_state_mujoco_trajs data
 ```
 
-Once the data has been downloaded, models can be trained as shown below.
+Once the data has been downloaded, ``NODE``, ``CoupledNODE``(NODE + SO), and ``MixtureHNN`` (SymODEN) models can be trained as shown below.
 
 ```
-python mujoco.py
+python mujoco.py --model_type "NODE" --task "HopperFull-v0"
+python mujoco.py --model_type "CoupledNODE" --task "HopperFull-v0"
+python mujoco.py --model_type "MixtureHNN" --task "HopperFull-v0"
 ```
+
+The other mujoco tasks included in the paper can be specified as ``SwimmerFull-v0`` and     ``HalfCheetahFull-v0``
+
+# Citation
 
 If you find our work helpful, please cite it with
 ```bibtex
