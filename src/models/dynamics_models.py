@@ -3,8 +3,8 @@ import torch.nn as nn
 from torchdiffeq import odeint
 
 from src.models.hnn import HNN
-from .utils import FCsoftplus, FCtanh, FCswish, Reshape, Linear, CosSin
-from ..dynamics.hamiltonian import HamiltonianDynamics, mHamiltonianDynamics, GeneralizedT
+from .utils import FCtanh, Reshape, Linear
+from ..dynamics.hamiltonian import HamiltonianDynamics, GeneralizedT
 
 
 def make_mlp(input_size, hidden_size, output_size, depth):
@@ -430,8 +430,7 @@ class MixtureHNN(nn.Module):
 
         dz_dt = self.dynamics(t, dynamics_input)
         dq_dt, dp_dt = dz_dt.chunk(2, dim=-1)
-        # print(dp_dt.shape)
-        # print(self.force_net(net_input).shape)
+ 
         dp_dt = dp_dt + self.force_net(net_input)
         dz_dt = torch.cat([dq_dt, dp_dt], dim=-1)
 
@@ -554,33 +553,6 @@ class RPPNet(RecNODE):
     def integrate(self, x_0, ts, u=None, **kwargs):
         self.ham_net.nfe = 0
         return super().integrate(x_0, ts, u=None, **kwargs)
-    #     """
-    #     params:
-    #         x_0: initial state (batch_size, x_size)
-    #         ts: time grid (seq_size + 1,)
-    #         u: optional control inputs, (batch_size, seq_size, u_size)
-    #     returns:
-    #         pred_x: (batch_size, seq_size, x_size)
-    #     """
-    #     self.nfe = 0
-    #     x_t = x_0
-    #     pred_x = [x_0]
-    #     ts = torch.arange(ts.size(0)).float()
-    #     for t_idx, _ in enumerate(ts[:-1]):
-    #         u_t = u if u is None else u[:, t_idx:t_idx+1]
-    #
-    #         int_args = [x_t, ts[t_idx:t_idx + 2], u_t]
-    #         x_rec = self.rec_net.integrate(*int_args, reset_hidden=(t_idx == 0))[:, -1]
-    #         x_node = self.node.integrate(*int_args)[:, -1]
-    #         # x_node = torch.zeros_like(x_rec)
-    #         # x_ham = self.ham_net.integrate(x_t, ts[t_idx:t_idx + 2])[:, -1]
-    #         x_ham = torch.zeros_like(x_node)
-    #         x_t = x_rec + x_node + x_ham
-    #         pred_x.append(x_t)
-    #         self.nfe += (self.rec_net.nfe + self.node.nfe)
-    #
-    #     pred_x = torch.stack(pred_x, dim=1)
-    #     return pred_x
 
     @property
     def param_groups(self):

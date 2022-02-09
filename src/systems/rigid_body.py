@@ -111,35 +111,6 @@ class RigidBody:
         DPhi[:,1] = (Minv@DPhi[:,1].reshape(bs,n,-1)).reshape(DPhi[:,1].shape)
         return DPhi.reshape(bs,2*n*d,-1)
 
-
-    # def global2bodyCoords(self,z):
-    #     """ inputs [xv (bs,2,n_all,d)]
-    #         outputs [qv (bs,2,D)]"""
-    #     # FOR Trees only right now
-    #     i = 0
-    #     #for key in nx.get_node_attributes(self.body_graph,"root"):
-
-    #     raise NotImplementedError
-
-    # def subtree_global2body_fill(self,node,z,qqdot_out,traversed_nodes,filled_amnt):
-    #     """ [z (bs,2,n_all,d)] [qqdot_out (bs,2,D)]"""
-    #     traversed_nodes.add(node)
-    #     # Deal with internal edges
-    #     i = self.body.key2id[node]
-    #     zcom = z[:,:,i,:]
-    #     cols = []
-    #     for edge in edges_wattribute(self.body_graph,node,'internal'):
-    #         j = self.body.key2id[edge[0] if edge[0]!=node else edge[1]]
-    #         cols.append(z[:,:,j]-zcom)
-    #     d_obj = len(cols)
-    #     R = torch.stack(cols,dim=-1) # (bs,2,d_ambient,d_obj)
-
-    #     # deal with external edges
-
-    # def body2globalCoords(self):
-    #     raise NotImplementedError  # TODO: use nx.bfs_edges and tethers
-
-
     def sample_initial_conditions(self, n_systems):
         raise NotImplementedError
 
@@ -282,19 +253,6 @@ def joint_constraints_DPhi(G,x,v):
 
     return DPhi.reshape(bs,2,n,d,2,-1)
 
-
-
-
-# def axis_constraints(G,x,v,Minv):
-#     """ inputs [Graph] [x (bs,n,d)] [v (bs,n,d)]
-#         outputs [DPhi (bs,2,n,d,2,C)] """
-#     bs,n,d = x.shape
-#     axis_constrs = nx.get_node_attributes(G, "pos_cnstr")
-#     DPhi = torch.zeros(bs, 2, n, d, 2,len(axis_constrs), device=x.device, dtype=x.dtype)
-#     for cid,(i, axis) in enumerate(axis_constrs.items()):
-#         DPhi[:,0, i, axis, 0,cid] = 1
-#         DPhi[:,0, :, axis, 1,cid] = Minv[:, i]
-#     return DPhi
 
 def rigid_DPhi(rigid_body_graph, x, v):
     """inputs [Graph (n,E)] [x (bs,n,d)] [v (bs, n, d)]

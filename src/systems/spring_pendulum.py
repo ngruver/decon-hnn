@@ -41,10 +41,6 @@ class SpringPendulum(RigidBody):
         zn[:,0,:,2] += .8*np.random.randn(bs,self.n)
         zn[:,0,:] += .4*np.random.randn(bs,self.n,self.d)
         zn[:,1] += .6*np.random.randn(bs,self.n,self.d)
-        # x1 = np.array([0,0,-1.5]) +.2*np.random.randn(bs,3)
-        # x2= np.array([0,0,-3.]) +.2*np.random.randn(bs,3)
-        # p = .4*np.random.randn(bs,6)
-        # z0 = np.concatenate([x1,x2,p],axis=-1)
         return torch.from_numpy(zn).float()
     
     def global2bodyCoords(self, global_pos_vel):

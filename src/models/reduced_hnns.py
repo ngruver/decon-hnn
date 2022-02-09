@@ -6,7 +6,6 @@ import torch.nn as nn
 import numpy as np
 from torchdiffeq import odeint
 from .utils import FCsoftplus, FCtanh, FCswish, Reshape, Linear, CosSin
-from ..dynamics.hamiltonian import HamiltonianDynamics, mHamiltonianDynamics, GeneralizedT
 from typing import Tuple
 from torch.autograd.functional import jacobian
 from .nn import NN
@@ -221,11 +220,6 @@ class MechanicsNN(nn.Module):
         chs = [self.q_ndim + len(angular_dims)] + num_layers * [hidden_size]
         self.mass_net = nn.Sequential(
             CosSin(self.q_ndim, angular_dims, only_q=True),
-            # *[val for pair in zip([FCtanh(chs[i], chs[i + 1], zero_bias=False, orthogonal_init=True)
-            #         for i in range(num_layers)],
-            #      [nn.Dropout(0.2) for i in range(num_layers)])
-            #   for val in pair
-            # ],
             *[
                 FCtanh(chs[i], chs[i + 1], zero_bias=False, orthogonal_init=True)
                 for i in range(num_layers)
@@ -237,11 +231,6 @@ class MechanicsNN(nn.Module):
         chs = [2 * self.q_ndim + len(angular_dims)] + num_layers * [hidden_size]
         self.dynamics_net = nn.Sequential(
             CosSin(self.q_ndim, angular_dims, only_q=False),
-            # *[val for pair in zip([FCtanh(chs[i], chs[i + 1], zero_bias=False, orthogonal_init=True)
-            #         for i in range(num_layers)],
-            #      [nn.Dropout(0.5) for i in range(num_layers)])
-            #   for val in pair
-            # ],
             *[
                 FCtanh(chs[i], chs[i + 1], zero_bias=False, orthogonal_init=True)
                 for i in range(num_layers)
@@ -254,15 +243,12 @@ class MechanicsNN(nn.Module):
 
     def tril_Minv(self, q):
         mass_net_q = self.mass_net(q)
-        # print(mass_net_q.mean(0))
         res = torch.triu(mass_net_q, diagonal=1)
-        # Constrain diagonal of Cholesky to be positive
         res = res + torch.diag_embed(
             torch.nn.functional.softplus(torch.diagonal(mass_net_q, dim1=-2, dim2=-1)),
             dim1=-2,
             dim2=-1,
         )
-        #print(torch.nn.functional.softplus(torch.diagonal(mass_net_q, dim1=-2, dim2=-1)).min())
         res = res.transpose(-1, -2)  # Make lower triangular
         return res
 
@@ -295,7 +281,6 @@ class MechanicsNN(nn.Module):
                     qdot,
                     lower_triangular @ lower_triangular.transpose(-2, -1) + diag_noise
             ).solution.squeeze(-1)
-            # print(M_times_qdot.mean())
             return M_times_qdot
 
         return M_func
@@ -432,17 +417,9 @@ class SecondOrderNN(nn.Module):
         assert D == self.q_ndim
 
         self.nfe = 0  # reset each forward pass
-
         ts = ts - ts[0]
-        # print(ts)
-
         z0 = z0.reshape(bs, -1)  # -> bs x D
         zt = odeint(self, z0, ts, rtol=tol, method=method)
         zt = zt.permute(1, 0, 2)  # T x N x D -> N x T x D
         zt = zt.reshape(bs, len(ts), 2, D)
-
-        # print(f"scale: {self.scale.data}")
-        # print(f"shift: {self.shift.data}")
-        # print("\n")
-
         return zt

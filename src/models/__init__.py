@@ -1,5 +1,4 @@
-from .constrained_hnn import CHNN, CH, AleatoricCHNN
-from .hnn import HNN
-from .nn import NN, mNN
-from .rpp_hnn import FlexHNN
-from .sp_regularized_nn import SpNN
+from .hnn import HNN, NonseparableHNN
+from .nn import NN
+from .mixture_hnn import MixtureHNN
+from .reduced_hnns import SpNN, MechanicsNN, SecondOrderNN

@@ -4,7 +4,7 @@ from oil.utils.utils import export,FixedNumpySeed
 from src.systems.rigid_body import RigidBody,BodyGraph
 from src.systems.chain_pendulum import PendulumAnimation
 import numpy as np
-from src.utils import bodyX2comEuler,comEuler2bodyX, frame2euler,euler2frame
+from src.utils import euler2frame
 
 @export
 class MagnetPendulum(RigidBody):
@@ -28,13 +28,8 @@ class MagnetPendulum(RigidBody):
             dim=-1,
         )
         self.magnet_dipoles = q*torch.stack([0*theta, 0*theta, torch.ones_like(theta)], dim=-1)  # +z direction
-        # self.magnet_positions = torch.tensor([0.,0., -1.1*l])[None]
-        # self.magnet_dipoles = q*torch.tensor([0.,0.,1.])[None]
+
     def sample_initial_conditions(self, N):
-        # phi =torch.rand(N)*2*np.pi
-        # phid = .1*torch.randn(N)
-        # theta = (4/5)*np.pi + .1*torch.randn(N)
-        # thetad = 0.00*torch.randn(N)
         angles_omega = torch.zeros(N,2,2)
         angles_omega[:,0,0] = np.pi+.3*torch.randn(N)
         angles_omega[:,1,0] = .05*torch.randn(N)
@@ -42,9 +37,6 @@ class MagnetPendulum(RigidBody):
         angles_omega[:,1,1] = .4*torch.randn(N)
         xv = self.body2globalCoords(angles_omega)
         return xv
-    # def sample_initial_conditions(self,N):
-    #     angles_vel = torch.randn(N,2,2,1)
-    #     return self.body2globalCoords(angles_vel)
 
     def global2bodyCoords(self, global_pos_vel):
         """ input (bs,2,1,3) output (bs,2,dangular=2n) """
@@ -127,8 +119,3 @@ class MagnetPendulumAnimation(PendulumAnimation):
         self.ax.set_xlabel("x")
         self.ax.set_ylabel("y")
         self.ax.set_zlabel("z")
-        # self.magnets.set
-        #  self.objects = {
-        #     'pts':sum([self.ax.plot(*empty, "o", ms=6) for i in range(n)], []),
-        #     'traj_lines':sum([self.ax.plot(*empty, "-") for _ in range(n)], []),
-        # }

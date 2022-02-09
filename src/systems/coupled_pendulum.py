@@ -1,12 +1,9 @@
 import torch
-import networkx as nx
 import numpy as np
 from oil.utils.utils import export,FixedNumpySeed
 from src.systems.rigid_body import RigidBody, BodyGraph, project_onto_constraints
-from src.animation import Animation
 from src.systems.chain_pendulum import PendulumAnimation
 from src.systems.magnet_pendulum import MagnetPendulum
-from src.utils import bodyX2comEuler,comEuler2bodyX, frame2euler,euler2frame
 import copy
 
 @export
@@ -34,25 +31,9 @@ class CoupledPendulum(MagnetPendulum):
         angles_and_angvel[:,0,1::2] += np.pi/2
         angles_and_angvel[:,0,::2] += np.pi
         z = self.body2globalCoords(angles_and_angvel) #(bs,2,n,d)
-        #z[:,0] += self.locs.to(z.device,z.dtype)
-        #z[:,0] += .2*torch.randn(bs,n,3)
-        #z[:,1,-1] = 1.0*torch.randn(bs,3)
-        #z[:,1] = .5*z[:,1] + .4*torch.randn(bs,n,3)
         try: return project_onto_constraints(self.body_graph,z,tol=1e-5)
         except OverflowError: return self.sample_initial_conditions(bs)
     
-    # def sample_initial_conditions(self, bs):
-    #     n = len(self.body_graph.nodes)
-    #     angles_and_angvel = .5*torch.randn(bs, 2, 2*n)  # (bs,2,n)
-    #     angles_and_angvel[:,0,:] += np.pi/2
-    #     angles_and_angvel[:,0,::2] -= np.pi
-    #     z = self.body2globalCoords(angles_and_angvel) #(bs,2,n,d)
-    #     #z[:,0] += self.locs.to(z.device,z.dtype)
-    #     #z[:,0] += .2*torch.randn(bs,n,3)
-    #     z[:,1,-1] = 2*torch.randn(bs,3)
-    #     #z[:,1] = .5*z[:,1] + .4*torch.randn(bs,n,3)
-    #     try: return project_onto_constraints(self.body_graph,z,tol=1e-5)
-    #     except OverflowError: return self.sample_initial_conditions(bs)
     def global2bodyCoords(self, global_pos_vel):
         """ input (bs,2,n,3) output (bs,2,dangular=2n) """
         xyz = copy.deepcopy(global_pos_vel)
@@ -100,9 +81,6 @@ def align2ref(refs,vecs):
     M = (np.eye(3)+A+(A@A)/(1+v[:,2,None,None]))*norm[:,None,None]
     return (M[:,None]@vecs[None,...,None]).squeeze(-1)
 
-
-
-
 class CoupledPendulumAnimation(PendulumAnimation):
     
     def __init__(self, *args, **kwargs):
@@ -110,27 +88,10 @@ class CoupledPendulumAnimation(PendulumAnimation):
         empty = self.qt.shape[-1]*[[]]
         self.objects["springs"] = self.ax.plot(*empty,c='k',lw=.6)#sum([self.ax.plot(*empty,c='k',lw=2) for _ in range(self.n-1)],[])
         self.helix = helix(200,turns=10)
+    
     def update(self,i=0):
         diffs = (self.qt[i,1:]-self.qt[i,:-1])
         x,y,z = (align2ref(diffs,self.helix)+self.qt[i,:-1][:,None]).reshape(-1,3).T
         self.objects['springs'][0].set_data(x,y)
         self.objects['springs'][0].set_3d_properties(z)
         return super().update(i)
-    # def plot_spring(x, y, theta, L):
-    # """Plot the spring from (0,0) to (x,y) as the projection of a helix."""
-    # # Spring turn radius, number of turns
-    # rs, ns = 0.05, 25
-    # # Number of data points for the helix
-    # Ns = 1000
-    # # We don't draw coils all the way to the end of the pendulum:
-    # # pad a bit from the anchor and from the bob by these number of points
-    # ipad1, ipad2 = 100, 150
-    # w = np.linspace(0, L, Ns)
-    # # Set up the helix along the x-axis ...
-    # xp = np.zeros(Ns)
-    # xp[ipad1:-ipad2] = rs * np.sin(2*np.pi * ns * w[ipad1:-ipad2] / L)
-    # # ... then rotate it to align with  the pendulum and plot.
-    # R = np.array([[np.cos(theta), -np.sin(theta)],
-    #               [np.sin(theta), np.cos(theta)]])
-    # xs, ys = - R @ np.vstack((xp, w))
-    # ax.plot(xs, ys, c='k', lw=2)

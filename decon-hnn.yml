@@ -1,0 +1,5 @@
+name: decon-hnn
+channels:
+  - defaults
+prefix: /Users/nategruver/opt/anaconda3/envs/decon-hnn
+

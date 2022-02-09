@@ -19,37 +19,23 @@ class Rotor(RigidBody):
     n=4
     dt=0.05
     integration_time=5.
+    
     def __init__(self, mass=.1, obj='rotor'):#,moments=(1,2,3)):
         verts,tris =  read_obj(obj+'.obj')
         
         _,com,covar = compute_moments(torch.from_numpy(verts[tris]))
         verts -= com.numpy()[None,:] # set com as 0
-        # verts*=100
-        eigs,Q = np.linalg.eigh(covar.numpy())
-        #print(compute_moments(torch.from_numpy((verts@Q)[tris])))
         moments = torch.diag(covar)
         self.obj = (verts,tris)
         self.body_graph = BodyGraph()
         self.body_graph.add_extended_nd(0,mass,moments,d=3)
+
     def sample_initial_conditions(self,N):
         comEulers = (2*torch.randn(N,2,6)).clamp(max=3,min=-3)
         comEulers[:,:,:3]*=.1
         bodyX = comEuler2bodyX(comEulers)
-        #bodyX = torch.randn(N,2,4,3)
-        #bodyX = project_onto_constraints(self.body_graph,bodyX)
         return bodyX
-        # comEulers = (.75*torch.randn(N,2,6)).clamp(max=1.5,min=-1.5)
-        # comEulers[:,0,3:]*=.05
-        # comEulers[:,1,3:]*=1
-        # # comEulers[:,1,5]*=500
-        # comEulers[:,:,:3]*=.005
-        # comEulers[:,1,5]*=4
-        # #comEulers[]
-        # bodyX = comEuler2bodyX(comEulers)
-        # #bodyX = torch.randn(N,2,4,3) + torch.randn(N,1,1,1)
-        # #bodyX = project_onto_constraints(self.body_graph,bodyX)
-        # return bodyX
-        #return 
+
     def potential(self,x):
         return 0.
     def body2globalCoords(self,comEulers):
@@ -86,13 +72,8 @@ class RigidAnimation(Animation):
         self.ax.set_xlim((min(lower),max(upper)))
         self.ax.set_ylim((min(lower),max(upper)))
         self.ax.set_zlim((min(lower),max(upper)))
-        # self.ax.set_xlim((-.2,.2))
-        # self.ax.set_ylim((-.2,2))
-        # self.ax.set_zlim((-.2,.2))
         
     def init(self):
-        #x,y,z = self.vertices
-        #self.objects['pts'] = self.ax.plot_trisurf(x, z, self.triangles, y, shade=True, color='white')
         return [self.objects['pts']]
 
     def update(self, i=0):
@@ -103,10 +84,6 @@ class RigidAnimation(Animation):
             R = (xyz[1:]-xcom[None,:]).T # (3,3)
             new_vertices = R@(self.vertices.reshape(*xcom.shape,-1))+xcom[:,None]
             self.objects['pts'].set_verts([new_vertices.T])
-            #self.objects['pts'].remove()
-            #self.objects['pts'] = self.ax.plot_trisurf(x, z, self.triangles, y, shade=True, color='white')
-            #if d==3: self.objects['pts'][j].set_3d_properties(xyz[-1:,...,2].T.data.numpy())
-        #self.fig.canvas.draw()
         return [self.objects['pts']]
 
     def animate(self):

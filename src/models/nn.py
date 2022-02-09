@@ -4,7 +4,6 @@ import torch.nn as nn
 from torchdiffeq import odeint
 from .utils import FCsoftplus,FCtanh, Linear, CosSin
 from typing import Tuple, Union
-from ..uncertainty.swag import SWAG
 
 class NN(nn.Module):
     def __init__(

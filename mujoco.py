@@ -99,7 +99,8 @@ def fit_net(net, data, z_mean, z_std, num_epochs, weight_decay=1e-6, log_freq=1)
 def seq_rmse(net, loader, ts, z_std):
 	rmse = 0.
 	for z, u in loader:
-		z, u = z.to('cuda:0'), u.to('cuda:0')
+		if torch.cuda.is_available():
+			z, u = z.to('cuda:0'), u.to('cuda:0')
 
 		with torch.no_grad():
 			z_pred = net.integrate(z[:,0], ts, u)[:, :-1]
@@ -110,6 +111,8 @@ def seq_rmse(net, loader, ts, z_std):
 
 
 def train_mujoco_model(cfg):
+	device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+
 	random.seed(cfg['seed'])
 	np.random.seed(cfg['seed'])
 	torch.manual_seed(cfg['seed'])
@@ -138,15 +141,15 @@ def train_mujoco_model(cfg):
 
 	train_ts = torch.tensor(
 	    np.linspace(0, env_dt*(train_seq_len), train_seq_len + 1)
-	).float().to('cuda:0')
+	).float().to(device)
 	test_ts = torch.tensor(
 	    np.linspace(0, env_dt*(test_seq_len), test_seq_len + 1)
-	).float().to('cuda:0')
+	).float().to(device)
 
-	z_mean = torch.tensor(train_x.reshape(-1, x_size).mean(0)).to('cuda:0')
+	z_mean = torch.tensor(train_x.reshape(-1, x_size).mean(0)).to(device)
 	z_std = torch.tensor(
 	    np.clip(train_x.reshape(-1, x_size).std(0), a_min=1e-6, a_max=None)
-	).to('cuda:0')
+	).to(device)
 
 	q_delta = (train_x[:, 1:, :(x_size // 2)] - train_x[:, :-1, :(x_size // 2)])
 	q_dot_fd = q_delta / env_dt
@@ -218,7 +221,9 @@ def train_mujoco_model(cfg):
 	else:
 		raise ValueError('unrecognized model type')
 
-	net = eval(model_type)(**model_cfg).to('cuda')
+	net = eval(model_type)(**model_cfg)
+	if torch.cuda.is_available():
+		net = net.to('cuda')
 
 	net.input_loc = torch.tensor(
     	np.concatenate((train_x, train_u), axis=-1).reshape(-1, x_size + u_size).mean(0)
