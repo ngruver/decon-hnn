@@ -9,7 +9,7 @@ by [Nate Gruver](https://ngruver.github.io/), [Marc Finzi](https://mfinzi.github
 
 # Code
 
-Our was constructed from
+Our repo was constructed from
 https://github.com/mfinzi/constrained-hamiltonian-neural-networks.git
 
 # Installation instructions
