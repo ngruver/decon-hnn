@@ -55,13 +55,7 @@ python toy_systems.py --system_type "ChainPendulum" --model_type "MechanicsNN"
 python toy_systems.py --system_type "ChainPendulum" --model_type "HNN"
 ```
 
-Different systems, with and without friction, can be specified using the ``system_type`` option as shown below.
-
-```
-python toy_systems.py --system_type "SpringPendulum" --model_type "NN"
-python toy_systems.py --system_type "FrictionChainPendulum" --model_type "NN"
-python toy_systems.py --system_type "FrictionSpringPendulum" --model_type "NN"
-```
+The other systems, with and without friction, can be specified as ``SpringPendulum``, ``FrictionChainPendulum``, and ``FrictionSpringPendulum``. 
 
 # Train Mujoco models
 
