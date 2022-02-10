@@ -31,17 +31,15 @@ conda env create -f decon-hnn.yml
 
 All figures from the paper can be recreated by running the notebooks
 
-```
-energy_plots.ipynb
-bar_plots.ipynb
-```
+[energy_plots.ipynb](https://github.com/ngruver/decon-hnn/blob/main/energy_plots.ipynb)
+
+[bar_plots.ipynb](https://github.com/ngruver/decon-hnn/blob/main/bar_plots.ipynb)
 
 These notebooks process data from the following wandb sweeps
 
-```
-https://wandb.ai/ngruver/physics-uncertainty-exps/sweeps
-https://wandb.ai/samuelstanton/physics-uncertainty-exps/sweeps
-```
+[`https://wandb.ai/ngruver/physics-uncertainty-exps/sweeps`](https://wandb.ai/ngruver/physics-uncertainty-exps/sweeps)
+
+[`https://wandb.ai/samuelstanton/physics-uncertainty-exps/sweeps`](https://wandb.ai/ngruver/physics-uncertainty-exps/sweeps)
 
 All experimental data, and the associated configurations, are contained in these sweeps.
 
@@ -49,7 +47,7 @@ All experimental data, and the associated configurations, are contained in these
 
 You can train the models ``NN`` (NODE), ``MechanicsNN`` (NODE + SO), and ``HNN`` using the ``model_type`` option as shown below.
 
-```
+```bash
 python toy_systems.py --system_type "ChainPendulum" --model_type "NN"
 python toy_systems.py --system_type "ChainPendulum" --model_type "MechanicsNN"
 python toy_systems.py --system_type "ChainPendulum" --model_type "HNN"
@@ -63,7 +61,7 @@ To train models on mujoco, you must first download our saved mujoco trajectories
 
 ### Mac
 
-```
+```bash
 brew install gdrive
 gdrive download 1Vdf8rjPXabfMaCouNfqUYf0ifDW3qAU2 --recursive
 mv full_state_mujoco_trajs data
@@ -80,7 +78,7 @@ mv full_state_mujoco_trajs data
 
 Once the data has been downloaded, ``NODE``, ``CoupledNODE``(NODE + SO), and ``MixtureHNN`` (SymODEN) models can be trained as shown below.
 
-```
+```bash
 python mujoco.py --model_type "NODE" --task "HopperFull-v0"
 python mujoco.py --model_type "CoupledNODE" --task "HopperFull-v0"
 python mujoco.py --model_type "MixtureHNN" --task "HopperFull-v0"
